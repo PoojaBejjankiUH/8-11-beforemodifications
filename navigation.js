@@ -2,17 +2,19 @@ let courses = [];
 let electives = {};
 let programAcademicMap = {};
 let academicMap = {
-    0: { "semesterFall": [], "semesterSpring": [] },
-    1: { "semesterFall": [], "semesterSpring": [] },
-    2: { "semesterFall": [], "semesterSpring": [] },
-    3: { "semesterFall": [], "semesterSpring": [] }
+    years: [
+        { year: 1, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+        { year: 2, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+        { year: 3, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+        { year: 4, semesterFall: { courses: [] }, semesterSpring: { courses: [] } }
+    ]
 };
 
 document.addEventListener("DOMContentLoaded", function() {
     // Load courses and electives from local storage or fetch from the JSON file
     const storedCourses = localStorage.getItem('courseList');
     const storedElectives = localStorage.getItem('electivesList');
-    const storedAcademicMap = localStorage.getItem('programAcademicMap');
+    const storedAcademicMap = localStorage.getItem('academicMaps');
 
     if (storedCourses && storedElectives) {
         courses = JSON.parse(storedCourses);
@@ -22,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         updateCourseDropdown();
         displayAcademicMap();
-    } else {
+    }/*  else {
         fetch('data_version3.json')
             .then(response => response.json())
             .then(jsonData => {
@@ -33,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 displayAcademicMap();
             })
             .catch(error => console.error('Error fetching courses:', error));
-    }
+    } */
 });
 
 document.getElementById('course-type-select').addEventListener('change', function() {
@@ -103,21 +105,12 @@ function addCoursesToAcademicMap() {
     const courseType = document.getElementById('course-type-select').value;
     const category = document.getElementById('category-select').value;
     const programName = document.querySelector('.nav-link.active').innerText;
+    programAcademicMap = JSON.parse(localStorage.getItem('academicMaps'));
 
-    console.log('Year:', year);
-    console.log('Semester:', semester);
-    console.log('Course Type:', courseType);
-    console.log('Category:', category);
-    console.log('Program Name:', programName);
-
-    const program = programAcademicMap[programName];
-    console.log('Program Index:', program);
+    const program = programAcademicMap.programs.find(program => program.name === programName);
 
     if (program) {
-
-
-        const yearData = program[year];
-        console.log('Year Data:', yearData);
+        const yearData = program.years.find(program => program.year == +(year)+1);
         if (yearData) {
             const courseCode = document.getElementById('course-select').value;
             /* if (courseType === 'core' ) {
@@ -132,10 +125,10 @@ function addCoursesToAcademicMap() {
             }
  */         
             if (courseCode) {
-                if (!yearData[semester].includes(courseCode)) {
-                    yearData[semester].push(courseCode);
+                if (!yearData[semester].courses.includes(courseCode)) {
+                    yearData[semester].courses.push(courseCode);
                 }
-                localStorage.setItem('programAcademicMap', JSON.stringify(programAcademicMap));
+                localStorage.setItem('academicMaps', JSON.stringify(programAcademicMap));
                 displayAcademicMap();
                 alert("Courses added successfully!");
                 console.log('Updated Year Data:', yearData);
@@ -152,7 +145,7 @@ function addCoursesToAcademicMap() {
 function updateLocalStorage() {
     localStorage.setItem('courseList', JSON.stringify(courses));
     localStorage.setItem('electivesList', JSON.stringify(electives));
-    localStorage.setItem('programAcademicMap', JSON.stringify(programAcademicMap));
+    localStorage.setItem('academicMaps', JSON.stringify(programAcademicMap));
 }
 function updateCourseDropdown() {
     const courseSelect = document.getElementById('course-select');
@@ -179,19 +172,23 @@ function updateCourseDropdown() {
     });
 }
 function displayAcademicMap() {
+    programAcademicMap = JSON.parse(localStorage.getItem('academicMaps'));
     academicMap = {
-        0: { "semesterFall": [], "semesterSpring": [] },
-        1: { "semesterFall": [], "semesterSpring": [] },
-        2: { "semesterFall": [], "semesterSpring": [] },
-        3: { "semesterFall": [], "semesterSpring": [] }
+        years: [
+            { year: 1, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+            { year: 2, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+            { year: 3, semesterFall: { courses: [] }, semesterSpring: { courses: [] } },
+            { year: 4, semesterFall: { courses: [] }, semesterSpring: { courses: [] } }
+        ]
     };
     const yearsContainer = document.getElementById('years-container');
     yearsContainer.innerHTML = '';
     const programName = document.getElementsByClassName('nav-link active')[0]?.innerText;
-    if (programName && programAcademicMap[`${programName}`]) {
-        academicMap = programAcademicMap[`${programName}`];
+    const programFromStorage = programAcademicMap.programs.find(pro => pro.name === programName);
+    if (programName && programFromStorage) {
+        academicMap = programFromStorage;
     }
-    for (let year in academicMap) {
+    for (let year in academicMap.years) {
         const yearDiv = document.createElement('div');
         yearDiv.classList.add('year-block', 'mb-5');
         yearDiv.innerHTML = `<h3>Year ${parseInt(year) + 1}</h3>`;
@@ -199,80 +196,81 @@ function displayAcademicMap() {
         semesterContainer.classList.add('row', 'semester-container');
         let fallCredits = 0;
         let springCredits = 0;
-        for (let semester in academicMap[year]) {
-            const semesterCol = document.createElement('div');
-            semesterCol.classList.add('col-md-6', 'semester-block');
-            semesterCol.innerHTML = `<h4>${semester === 'semesterFall' ? 'Fall' : 'Spring'}</h4>`;
-            const table = document.createElement('table');
-            table.classList.add('table', 'table-striped', 'table-bordered');
-            const thead = document.createElement('thead');
-            thead.classList.add('thead-dark');
-            let headerContent;
-            if (semester === 'semesterFall') {
-                headerContent = `<tr>
+        for (let semester in programFromStorage.years[year]) {
+            if (semester !== 'year') {
+                const semesterCol = document.createElement('div');
+                semesterCol.classList.add('col-md-6', 'semester-block');
+                semesterCol.innerHTML = `<h4>${semester === 'semesterFall' ? 'Fall' : 'Spring'}</h4>`;
+                const table = document.createElement('table');
+                table.classList.add('table', 'table-striped', 'table-bordered');
+                const thead = document.createElement('thead');
+                thead.classList.add('thead-dark');
+                let headerContent;
+                if (semester === 'semesterFall') {
+                    headerContent = `<tr>
                     <th>Year</th>
                     <th>Course Code</th>
                     <th>Course Name</th>
                     <th>Credits</th>
                     <th>Actions</th>
                 </tr>`;
-            } else {
-                headerContent = `<tr>
+                } else {
+                    headerContent = `<tr>
                     <th>Course Code</th>
                     <th>Course Name</th>
                     <th>Credits</th>
                     <th>Total Credits</th>
                     <th>Actions</th>
                 </tr>`;
-            }
-            thead.innerHTML = headerContent;
-            table.appendChild(thead);
-            const tbody = document.createElement('tbody');
-            let semesterCredits = 0;
-            academicMap[year][semester].forEach(courseCode => {
-                const course = [...courseList, ...Object.values(electivesList).flat()].find(c => c.courseCode === courseCode);
-                if (course) {
-                    const row = document.createElement('tr');
+                }
+                thead.innerHTML = headerContent;
+                table.appendChild(thead);
+                const tbody = document.createElement('tbody');
+                let semesterCredits = 0;
+                academicMap.years[year][semester].courses.forEach(courseCode => {
+                    const course = [...courseList, ...Object.values(electivesList).flat()].find(c => c.courseCode === courseCode);
+                    if (course) {
+                        const row = document.createElement('tr');
 
-                    if (semester === 'semesterFall') {
-                        row.innerHTML = `
+                        if (semester === 'semesterFall') {
+                            row.innerHTML = `
                             <td>${parseInt(year) + 1}</td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseCode}</a></td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
                             <td><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
-                        fallCredits += course.credits;
-                    } else {
-                        row.innerHTML = `
+                            fallCredits += course.credits;
+                        } else {
+                            row.innerHTML = `
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseCode}</a></td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
                             <td></td> <!-- Placeholder for total credits row later -->
                             <td><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
-                        springCredits += course.credits;
+                            springCredits += course.credits;
+                        }
+                        semesterCredits += course.credits;
+                        tbody.appendChild(row);
                     }
-                    semesterCredits += course.credits;
-                    tbody.appendChild(row);
-                }
-            });
-            // Add total credits row for individual semester
-            const totalRow = document.createElement('tr');
-            if (semester === 'semesterFall') {
-                totalRow.innerHTML = `<td colspan="3"><strong>Fall Total Credits</strong></td>
+                });
+                // Add total credits row for individual semester
+                const totalRow = document.createElement('tr');
+                if (semester === 'semesterFall') {
+                    totalRow.innerHTML = `<td colspan="3"><strong>Fall Total Credits</strong></td>
                                       <td><strong>${fallCredits}</strong></td>
                                       <td></td>`;
-            } else {
-                const totalYearCredits = fallCredits + springCredits;
-                totalRow.innerHTML = `<td colspan="3"><strong>Spring Total Credits</strong></td>
+                } else {
+                    const totalYearCredits = fallCredits + springCredits;
+                    totalRow.innerHTML = `<td colspan="3"><strong>Spring Total Credits</strong></td>
                                       <td><strong>${springCredits}</strong></td>
                                       <td><strong>${totalYearCredits}</strong></td>`;
+                }
+                tbody.appendChild(totalRow);
+                table.appendChild(tbody);
+                semesterCol.appendChild(table);
+                semesterContainer.appendChild(semesterCol);
+                updateLocalStorage();
             }
-            tbody.appendChild(totalRow);
-            table.appendChild(tbody);
-            semesterCol.appendChild(table);
-            semesterContainer.appendChild(semesterCol);
-            programAcademicMap[`${programName}`] = academicMap;
-            updateLocalStorage();
         }
         yearDiv.appendChild(semesterContainer);
         yearsContainer.appendChild(yearDiv);
@@ -311,9 +309,9 @@ function displayCourseDetails(courseCode) {
 }
 
 function deleteCourseAcademicMap(year, semester, courseCode) {
-    const index = academicMap[year][semester].indexOf(courseCode);
+    const index = academicMap.years[year][semester].courses.indexOf(courseCode);
     if (index > -1) {
-        academicMap[year][semester].splice(index, 1);
+        academicMap.years[year][semester].courses.splice(index, 1);
         updateLocalStorage();
         displayAcademicMap();
         updateCourseDropdown(); // Update dropdown after deleting a course
