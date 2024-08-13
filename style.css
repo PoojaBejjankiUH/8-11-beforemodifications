@@ -1,0 +1,65 @@
+
+body {
+    background: white;
+}
+
+* {
+    color: navy;
+} 
+
+::placeholder {
+    color: rgb(12, 12, 12) !important;
+}
+select option {
+    color: black;
+}
+
+.form-text.text-muted {
+    color: white;
+}
+    
+select option {
+    color: black;
+}
+#update {
+    display:none;
+}
+
+.container1{
+    height: 550px; 
+    overflow-y: scroll ;
+}
+.container{
+    margin: 10px; 
+}
+
+/* Modal styles */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050 !important;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease-in-out;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+.wide-table {
+    width: 100%;
+}
