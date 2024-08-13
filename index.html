@@ -13,26 +13,31 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" href="#" id="homeTab" onclick="routing('home')">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" id="addMapLink" onclick="routing('academicMap')">Add Academic Map</a>
-            </li>
-          </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link admin-only" href="#" id="addMapLink" onclick="routing('academicMap')">Add Academic Map</a>
+                </li>
+                <li class="nav-item admin-only">
+                    <a class="nav-link" href="#" id="homeTab" onclick="routing('home')">Courses</a>
+                </li>
+            </ul>
+            <form class="d-flex admin-only">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            <div class="ml-auto">
+                <select id="viewToggle" class="form-select">
+                    <option value="student">Student View</option>
+                    <option value="admin">Admin View</option>
+                </select>
+            </div>
         </div>
-      </nav>
+    </nav>
 
     <div class="container-fluid mb-5" id="contentContainer">
         <!-- Home Content: Displaying Courses -->
-        <div id="homeContent" style="display: block;">
+        <div id="homeContent" class="admin-only" style="display: none;">
             <div class="form-group col-md-3 mb-3">
                 <select class="form-control" id="searchType" required>
                     <option value="" disabled selected>Select Course Type</option>
@@ -54,7 +59,7 @@
 
             <hr>
             <h2 class="mt-5 mb-5">Course Management</h2>
-            <button class="btn btn-primary mb-3" id="showFormBtn">Add New Course</button>
+            <button class="btn btn-primary mb-3 admin-only" id="showFormBtn">Add New Course</button>
             <div class="row" id="courseForm" style="display: none;">
                 <div class="col-md-3 mb-3">
                     <input type="text" name="cc" class="form-control" id="cc" placeholder="Enter Course Code" required /> 
@@ -75,7 +80,7 @@
                     <input type="text" name="pre" class="form-control" id="pre" placeholder="Enter Prerequisite"/> 
                 </div>
                 <div class="form-group col-md-3 mb-3">
-                    <select type="text" name="rep" class="form-control" id="rep" placeholder="Enter Repetability" >
+                    <select type="text" name="rep" class="form-control" id="rep" placeholder="Enter Repetability">
                         <option value="" disabled selected>Repetability: Choose Option</option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
@@ -88,7 +93,7 @@
                         <option value="elective">Elective</option>
                     </select>
                 </div>
-                <div class="form-group col-md-3 mb-3" id="categoryContainer" style="display: none;">
+                <div class="form-group col-md-3 mb-3 admin-only" id="categoryContainer" style="display: none;">
                     <select class="form-control" id="category">
                         <option value="" disabled selected>Select Elective Category</option>
                         <option value="arts">Arts</option>
@@ -98,7 +103,7 @@
                         <option value="other">Other (Specify below)</option>
                     </select>
                 </div>
-                <div class="form-group col-md-3 mb-3" id="newCategoryContainer" style="display: none;">
+                <div class="form-group col-md-3 mb-3 admin-only" id="newCategoryContainer" style="display: none;">
                     <input type="text" class="form-control" id="newCategory" placeholder="Enter new category name" />
                 </div>
                 <div class="form-group col-md-3 mb-3">
@@ -108,7 +113,7 @@
                     <input type="text" name="tccns" class="form-control" id="tccns" placeholder="Enter TCCNS Equivalent"/> 
                 </div>
                 <div class="form-group col-md-3 mb-3">
-                    <select type="text" name="add" class="form-control" id="add" placeholder="Enter Additional Fee" >
+                    <select type="text" name="add" class="form-control" id="add" placeholder="Enter Additional Fee">
                         <option value="" disabled selected>Additional Fee: Choose Option</option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
@@ -119,8 +124,8 @@
                     <textarea type="text" name="des" class="form-control" id="des" placeholder="Enter Description" rows="4" cols="15" required></textarea>
                 </div>
                 <div class="col-12 mt-5">
-                    <button class="btn btn-success" id="submit">Add Data</button>
-                    <button class="btn btn-primary" type="button" id="update" style="display:none;">Update</button>
+                    <button class="btn btn-success admin-only" id="submit">Add Data</button>
+                    <button class="btn btn-primary admin-only" type="button" id="update" style="display:none;">Update</button>
                 </div>
             </div>
 
@@ -133,7 +138,7 @@
                                     <th>Course Code</th>
                                     <th>Course Name</th>
                                     <th>Course Credits</th>
-                                    <th>Actions</th>
+                                    <th class="admin-only">Actions</th>
                                 </tr>
                             </thead>
                             <tbody data-yh-object="courses">
@@ -146,75 +151,59 @@
         </div>
 
         <!-- Add Academic Map Content -->
-        <div id="addAcademicMapContent" style="display: none;">
+        <div id="addAcademicMapContent">
             <div class="container-fluid mb-5" id="contentContainer">
-                <div id="programInputContainer" class="mb-3">
+                <div id="programInputContainer" class="mb-3 admin-only">
                     <input type="text" id="programInput" class="form-control" placeholder="Enter program name">
                     <button id="saveButton" class="btn btn-primary ml-2" onclick="createProgram()">Create</button>
                 </div>
-                <div id="programs-container" class="row" style="display: none;">
+                <div id="programs-container" class="row">
                     <div class="col-3">
-                         <ul class="nav nav-tabs" id="programTabs" role="tablist">
+                        <ul class="nav nav-tabs" id="programTabs" role="tablist">
                             <!-- Tabs will be appended here by JavaScript -->
                         </ul>
                     </div>
                     <div class="col-9">
                         <div class="tab-content" id="programTabsContent"></div>
-                        <div id="course-add-container" class="mb-3">
-                            <select id="year-select">
-                                <option value="" disabled selected>Select Year</option>
-                                <option value="0">Year 1</option>
-                                <option value="1">Year 2</option>
-                                <option value="2">Year 3</option>
-                                <option value="3">Year 4</option>
-                            </select>
-                            <select id="semester-select">
-                                <option value="" disabled selected>Select Semester</option>
-                                <option value="semesterFall">Semester 1 Fall</option>
-                                <option value="semesterSpring">Semester 2 Spring</option>
-                            </select>
-                            <select id="course-type-select">
-                                <option value="" disabled selected>Select Course Type</option>
-                                <option value="core">Core</option>
-                                <option value="elective">Elective</option>
-                            </select>
-                            <select id="category-select" style="display:none;">
-                                <option value="" disabled selected>Select Elective Category</option>
-                                <option value="arts">Arts</option>
-                                <option value="ece">ECE</option>
-                                <option value="cpe">CpE</option>
-                                <option value="language">Language</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <select id="course-select" style="display:none;">
-                                <option value="" disabled selected>Select Course</option>
-                            </select>
-                            <button id="add-course-button" onclick="addCoursesToAcademicMap()">Add Course(s)</button>
+                        <div id="course-add-container" class="mb-3 admin-only">
+                          <form id="course-form">
+                                <select id="year-select">
+                                    <option value="" disabled selected>Select Year</option>
+                                    <option value="0">Year 1</option>
+                                    <option value="1">Year 2</option>
+                                    <option value="2">Year 3</option>
+                                    <option value="3">Year 4</option>
+                                </select>
+                                <select id="semester-select">
+                                    <option value="" disabled selected>Select Semester</option>
+                                    <option value="semesterFall">Semester 1 Fall</option>
+                                    <option value="semesterSpring">Semester 2 Spring</option>
+                                </select>
+                                <select id="course-type-select">
+                                    <option value="" disabled selected>Select Course Type</option>
+                                    <option value="core">Core</option>
+                                    <option value="elective">Elective</option>
+                                </select>
+                                <select id="category-select" style="display:none;">
+                                    <option value="" disabled selected>Select Elective Category</option>
+                                    <option value="arts">Arts</option>
+                                    <option value="ece">ECE</option>
+                                    <option value="cpe">CpE</option>
+                                    <option value="language">Language</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <select id="course-select" style="display:none;">
+                                    <option value="" disabled selected>Select Course</option>
+                                </select>
+                                <button id="add-course-button" class="admin-only" onclick="addCoursesToAcademicMap()">Add Course(s)</button>
+                            </form>
                         </div>
                         <div id="years-container"></div>
                     </div>
                 </div>
-                <div id="no-programs-found" style="display: none;">
+                <div id="no-programs-found" class="student-only">
                     <div class="mt-3">
                         <h1>NO PROGRAMS FOUND !!!</h1>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Course Details Modal -->
-            <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="courseModalTitle">Course Details</h5>
-                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="courseModalBody">
-                            <!-- Course details will be populated here -->
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -226,5 +215,29 @@
     <script src="home.js"></script>
     <script src="navigation.js"></script>
     <script src="academicMap.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let isAdmin = false; // Default to student mode
+            setViewMode(isAdmin);
+
+            document.getElementById('viewToggle').addEventListener('change', function() {
+                isAdmin = this.value === 'admin';
+                setViewMode(isAdmin);
+            });
+        });
+
+        function setViewMode(isAdmin) {
+            if (isAdmin) {
+                document.getElementById('homeContent').style.display = 'block'; // Show course tab
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.student-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.getElementById('homeContent').style.display = 'none'; // Hide course tab
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.student-only').forEach(el => el.style.display = 'block');
+            }
+        }
+    </script>
 </body>
 </html>
