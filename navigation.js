@@ -1,4 +1,5 @@
 let courses = [];
+let isAdmin = false;
 let programFromStorage={}; 
 let electives = {};
 let programAcademicMap = {};
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const storedCourses = localStorage.getItem('courseList');
     const storedElectives = localStorage.getItem('electivesList');
     const storedAcademicMap = localStorage.getItem('academicMaps');
-
+    setViewMode(isAdmin);
     if (storedCourses && storedElectives) {
         courses = JSON.parse(storedCourses);
         electives = JSON.parse(storedElectives);
@@ -82,6 +83,17 @@ function populateCoreCoursesDropdown() {
 }
 
 function populateElectiveCategoriesDropdown() {
+    const courseSelect = document.getElementById('course-select');
+    courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
+    electives[category].forEach(course => {
+        const option = document.createElement('option');
+        option.value = course.courseCode;
+        option.textContent = `${course.courseCode} - ${course.courseName}`;
+        courseSelect.appendChild(option);
+    });
+}
+
+function populateElectiveCoursesDropdown(category) {
     const alreadyAddedCourses = programFromStorage.years.flatMap(year => [...year.semesterFall.courses, ...year.semesterSpring.courses]);
     const filteredcourses = courses.filter(course => !alreadyAddedCourses.includes(course.courseCode));
     const categorySelect = document.getElementById('category-select');
@@ -92,17 +104,6 @@ function populateElectiveCategoriesDropdown() {
             option.textContent = `${course.courseCode} - ${course.courseName}`;
             courseSelect.appendChild(option);
         });
-}
-
-function populateElectiveCoursesDropdown(category) {
-    const courseSelect = document.getElementById('course-select');
-    courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
-    electives[category].forEach(course => {
-        const option = document.createElement('option');
-        option.value = course.courseCode;
-        option.textContent = `${course.courseCode} - ${course.courseName}`;
-        courseSelect.appendChild(option);
-    });
 }
 
 function addCoursesToAcademicMap() {
@@ -178,6 +179,7 @@ function updateCourseDropdown() {
     });
 }
 function displayAcademicMap() {
+    setViewMode();
     programAcademicMap = JSON.parse(localStorage.getItem('academicMaps'));
     academicMap = {
         years: [
@@ -244,7 +246,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseCode}</a></td>
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
-                            <td><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             fallCredits += course.credits;
                         } else {
                             row.innerHTML = `
@@ -252,7 +254,7 @@ function displayAcademicMap() {
                             <td><a href="#" class="course-link" data-course-code="${course.courseCode}">${course.courseName}</a></td>
                             <td>${course.credits}</td>
                             <td></td> <!-- Placeholder for total credits row later -->
-                            <td><button class="btn btn-danger btn-sm" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
+                            <td><button class="btn btn-danger btn-sm admin-only" onclick="deleteCourseAcademicMap('${year}', '${semester}', '${course.courseCode}')">Delete</button></td>`;
                             springCredits += course.credits;
                         }
                         semesterCredits += course.credits;
@@ -336,17 +338,13 @@ function routing(id) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    let isAdmin = false; // Default to student mode
-    setViewMode(isAdmin);
 
-    document.getElementById('viewToggle').addEventListener('change', function() {
-        isAdmin = this.value === 'admin';
-        setViewMode(isAdmin);
-    });
+document.getElementById('viewToggle').addEventListener('change', function() {
+    isAdmin = this.value === 'admin';
+    setViewMode();
 });
 
-function setViewMode(isAdmin) {
+function setViewMode() {
     if (isAdmin) {
         // Show admin functionalities
         document.getElementById('homeContent').style.display = 'block'; // Show course tab
