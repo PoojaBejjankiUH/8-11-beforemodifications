@@ -1,4 +1,5 @@
 let courses = [];
+let programFromStorage={}; 
 let electives = {};
 let programAcademicMap = {};
 let academicMap = {
@@ -65,9 +66,12 @@ document.getElementById('category-select').addEventListener('change', function()
 });
 
 function populateCoreCoursesDropdown() {
+    const alreadyAddedCourses = programFromStorage.years.flatMap(year => [...year.semesterFall.courses, ...year.semesterSpring.courses]);
+    const filteredcourses = courses.filter(course => !alreadyAddedCourses.includes(course.courseCode));
+
     const courseSelect = document.getElementById('course-select');
     courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
-    courses.forEach(course => {
+    filteredcourses.forEach(course => {
         if (course.type === 'core') {
             const option = document.createElement('option');
             option.value = course.courseCode;
@@ -78,14 +82,16 @@ function populateCoreCoursesDropdown() {
 }
 
 function populateElectiveCategoriesDropdown() {
+    const alreadyAddedCourses = programFromStorage.years.flatMap(year => [...year.semesterFall.courses, ...year.semesterSpring.courses]);
+    const filteredcourses = courses.filter(course => !alreadyAddedCourses.includes(course.courseCode));
     const categorySelect = document.getElementById('category-select');
     categorySelect.innerHTML = '<option value="" disabled selected>Select Elective Category</option>';
-    for (const category in electives) {
-        const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-        categorySelect.appendChild(option);
-    }
+    filteredcourses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.courseCode;
+            option.textContent = `${course.courseCode} - ${course.courseName}`;
+            courseSelect.appendChild(option);
+        });
 }
 
 function populateElectiveCoursesDropdown(category) {
@@ -184,7 +190,7 @@ function displayAcademicMap() {
     const yearsContainer = document.getElementById('years-container');
     yearsContainer.innerHTML = '';
     const programName = document.getElementsByClassName('nav-link active')[0]?.innerText;
-    const programFromStorage = programAcademicMap.programs.find(pro => pro.name === programName);
+    programFromStorage = programAcademicMap.programs.find(pro => pro.name === programName);
     if (programName && programFromStorage) {
         academicMap = programFromStorage;
     }
@@ -261,7 +267,7 @@ function displayAcademicMap() {
                                       <td></td>`;
                 } else {
                     const totalYearCredits = fallCredits + springCredits;
-                    totalRow.innerHTML = `<td colspan="3"><strong>Spring Total Credits</strong></td>
+                    totalRow.innerHTML = `<td colspan="2"><strong>Spring Total Credits</strong></td>
                                       <td><strong>${springCredits}</strong></td>
                                       <td><strong>${totalYearCredits}</strong></td>`;
                 }
@@ -327,6 +333,30 @@ function routing(id) {
         document.getElementById('homeContent').style.display = 'none';
         document.getElementById('addAcademicMapContent').style.display = 'block';
         displayAcademicMap();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    let isAdmin = false; // Default to student mode
+    setViewMode(isAdmin);
+
+    document.getElementById('viewToggle').addEventListener('change', function() {
+        isAdmin = this.value === 'admin';
+        setViewMode(isAdmin);
+    });
+});
+
+function setViewMode(isAdmin) {
+    if (isAdmin) {
+        // Show admin functionalities
+        document.getElementById('homeContent').style.display = 'block'; // Show course tab
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('.student-only').forEach(el => el.style.display = 'none');
+    } else {
+        // Hide course tab and admin functionalities for student view
+        document.getElementById('homeContent').style.display = 'none'; // Hide course tab
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.student-only').forEach(el => el.style.display = 'block');
     }
 }
 
