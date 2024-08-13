@@ -4,6 +4,7 @@ const courseList = JSON.parse(localStorage.getItem('courseList')) ?? [];
 const electivesList = JSON.parse(localStorage.getItem('electivesList')) ?? {};
 
 function displayProgramNavigation() {
+    
     const programTabs = document.getElementById('programTabs');
     const programTabsContent = document.getElementById('programTabsContent');
     programTabs.innerHTML = '';
@@ -32,6 +33,7 @@ function displayProgramNavigation() {
         tabContent.setAttribute('aria-labelledby', `tab-${index}`);
         programTabsContent.appendChild(tabContent);
     });
+
 }
 
 function fetchPrograms() {
