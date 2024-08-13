@@ -22,10 +22,7 @@
                     <a class="nav-link" href="#" id="homeTab" onclick="routing('home')">Courses</a>
                 </li>
             </ul>
-            <form class="d-flex admin-only">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
+            
             <div class="ml-auto">
                 <select id="viewToggle" class="form-select">
                     <option value="student">Student View</option>
@@ -216,28 +213,6 @@
     <script src="navigation.js"></script>
     <script src="academicMap.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let isAdmin = false; // Default to student mode
-            setViewMode(isAdmin);
-
-            document.getElementById('viewToggle').addEventListener('change', function() {
-                isAdmin = this.value === 'admin';
-                setViewMode(isAdmin);
-            });
-        });
-
-        function setViewMode(isAdmin) {
-            if (isAdmin) {
-                document.getElementById('homeContent').style.display = 'block'; // Show course tab
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                document.querySelectorAll('.student-only').forEach(el => el.style.display = 'none');
-            } else {
-                document.getElementById('homeContent').style.display = 'none'; // Hide course tab
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-                document.querySelectorAll('.student-only').forEach(el => el.style.display = 'block');
-            }
-        }
-    </script>
+    
 </body>
 </html>
