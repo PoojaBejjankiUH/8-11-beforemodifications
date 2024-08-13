@@ -14,7 +14,7 @@ function displayProgramNavigation() {
         tab.className = 'nav-item d-flex align-items-center';
         tab.innerHTML = `
             <a class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-toggle="tab" href="#content-${index}" role="tab" aria-controls="content-${index}" aria-selected="${index === 0 ? 'true' : 'false'}">${program}</a>
-            <button class="btn btn-danger btn-sm ml-2" onclick="deleteProgram('${program}')">X</button>
+            <button class="btn btn-danger btn-sm ml-2 admin-only" onclick="deleteProgram('${program}')">X</button>
         `;
         tab.querySelector('a').addEventListener('click', () => {
             setTimeout(function () {
